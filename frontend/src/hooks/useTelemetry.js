@@ -5,7 +5,8 @@ import { fetchCalculateMetrics, fetchSmartNudge } from '../components/api';
 /**
  * Custom React hook managing the global telemetry, carbon results,
  * AI advisory nudge state, active tabs, and transaction logging.
- * Supports smart debouncing that is bypassed automatically in testing.
+ * Calculates metrics instantly to keep UI responsive and tests passing,
+ * but debounces the slow AI advisory nudge endpoint.
  */
 export function useTelemetry() {
   const [activeTab, setActiveTab] = useState('transport');
@@ -39,8 +40,8 @@ export function useTelemetry() {
   const isFirstMount = useRef(true);
   const isResetting = useRef(false);
 
-  // Core synchronization method
-  const syncTelemetry = async (currentTelemetry, isInitial) => {
+  // Core synchronization method - executed instantly for UI responsiveness
+  const calculateAndLog = async (currentTelemetry, isInitial) => {
     setApiError(null);
     
     if (isResetting.current) {
@@ -49,14 +50,9 @@ export function useTelemetry() {
       try {
         const calcData = await fetchCalculateMetrics(currentTelemetry);
         setResults(calcData);
-        setNudgeLoading(true);
-        const nudgeData = await fetchSmartNudge(currentTelemetry, calcData);
-        setNudge(nudgeData.nudge);
       } catch (err) {
         console.error('[EcoSphere useTelemetry] Sync error during reset:', err);
         setApiError('Unable to update metrics.');
-      } finally {
-        setNudgeLoading(false);
       }
       return;
     }
@@ -64,10 +60,6 @@ export function useTelemetry() {
     try {
       const calcData = await fetchCalculateMetrics(currentTelemetry);
       setResults(calcData);
-      
-      setNudgeLoading(true);
-      const nudgeData = await fetchSmartNudge(currentTelemetry, calcData);
-      setNudge(nudgeData.nudge);
 
       if (!isInitial) {
         const prev = prevTelemetryRef.current;
@@ -137,33 +129,55 @@ export function useTelemetry() {
         }
       }
     } catch (err) {
-      console.error('[EcoSphere useTelemetry] Sync error:', err);
+      console.error('[EcoSphere useTelemetry] Calculation error:', err);
       setApiError('Unable to update metrics. Check fallback routes or backend connection.');
     } finally {
-      setNudgeLoading(false);
       prevTelemetryRef.current = currentTelemetry;
     }
   };
 
-  // Debouncing Effect Bridge
-  useEffect(() => {
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      syncTelemetry(telemetry, true);
+  // Heavy API Nudge fetch logic
+  const fetchNudgeAdvisor = async () => {
+    if (results.environmentalScore === 0) {
+      setNudge('Welcome to EcoSphere! Your island is in perfect harmony. Log your daily actions on the right to see how your carbon choices dynamically alter your ecosystem.');
+      setNudgeLoading(false);
       return;
     }
 
+    setNudgeLoading(true);
+    try {
+      const nudgeData = await fetchSmartNudge(telemetry, results);
+      setNudge(nudgeData.nudge);
+    } catch (err) {
+      console.error('[EcoSphere useTelemetry] Nudge advisory error:', err);
+    } finally {
+      setNudgeLoading(false);
+    }
+  };
+
+  // Effect 1: Execute calculations immediately on telemetry change to update UI instantly
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      calculateAndLog(telemetry, true);
+      return;
+    }
+    calculateAndLog(telemetry, false);
+  }, [telemetry]);
+
+  // Effect 2: Debounce the heavy Gemini API calls to prevent network and token choking
+  useEffect(() => {
     const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
     
     if (isTest) {
-      syncTelemetry(telemetry, false);
+      fetchNudgeAdvisor();
     } else {
       const timer = setTimeout(() => {
-        syncTelemetry(telemetry, false);
-      }, 300);
+        fetchNudgeAdvisor();
+      }, 400);
       return () => clearTimeout(timer);
     }
-  }, [telemetry]);
+  }, [results.environmentalScore, results.cumulativeCarbon]);
 
   // Telemetry modification handler
   const handleModifyTelemetry = useCallback((key, valueOrDelta, isDirectAssignment = false) => {
