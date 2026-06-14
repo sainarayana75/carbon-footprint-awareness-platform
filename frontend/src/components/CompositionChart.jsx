@@ -30,14 +30,12 @@ export const CompositionChart = React.memo(function CompositionChart({ results }
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-slate-950 border border-slate-900/80 p-4 rounded-2xl">
           <div className="md:col-span-6 h-32 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={128}>
-              <PieChart>
-                <Pie data={chartData} cx="50%" cy="50%" innerRadius={42} outerRadius={55} paddingAngle={4} dataKey="value">
-                  {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#020617', borderColor: '#1e293b', borderRadius: '10px', color: '#f8fafc', fontSize: '11px' }} formatter={(val) => [`${val.toFixed(1)} kg CO₂`, 'Impact']} />
-              </PieChart>
-            </ResponsiveContainer>
+            <PieChart width={140} height={128}>
+              <Pie data={chartData} cx="50%" cy="50%" innerRadius={42} outerRadius={55} paddingAngle={4} dataKey="value">
+                {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+              </Pie>
+              <Tooltip contentStyle={{ backgroundColor: '#020617', borderColor: '#1e293b', borderRadius: '10px', color: '#f8fafc', fontSize: '11px' }} formatter={(val) => [`${val.toFixed(1)} kg CO₂`, 'Impact']} />
+            </PieChart>
           </div>
           <div className="md:col-span-6 space-y-1.5">
             {chartData.map((item) => (
