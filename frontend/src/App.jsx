@@ -95,7 +95,7 @@ export default function App() {
       return {
         key: 'collapsed',
         title: 'Ecological Collapse',
-        description: 'Critical Warning! Industrial smog, thick soot, and active smokestacks are choking out the biosphere.',
+        description: 'Critical! Industrial smog, thick soot, flashing alerts, and active smokestacks are choking the island.',
         themeClass: 'from-stone-900 via-neutral-950 to-zinc-950',
         badgeColor: 'bg-red-500 animate-pulse'
       };
@@ -103,7 +103,7 @@ export default function App() {
       return {
         key: 'strained',
         title: 'Strained Biosphere',
-        description: 'Warning: The ecosystem is losing balance. Forest growth is fading, and grey clouds are gathering.',
+        description: 'Warning: The ecosystem is losing balance. Trees are fading, and grey clouds are blocking out the sun.',
         themeClass: 'from-amber-950/30 via-stone-900/40 to-stone-950',
         badgeColor: 'bg-amber-400'
       };
@@ -305,7 +305,7 @@ export default function App() {
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-7xl mx-auto w-full">
 
         {/* LEFT COMPONENT COLUMN: ECOSYSTEM INFRASTRUCTURE SIMULATOR */}
-        <section aria-label="Ecosystem Simulation Frame" className="lg:col-span-5 flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-900 bg-slate-900/40 backdrop-blur-md p-6 relative min-h-[520px]">
+        <section aria-label="EcoSphere Canvas" className="lg:col-span-5 flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-900 bg-slate-900/40 backdrop-blur-md p-6 relative min-h-[520px]">
           <div className={`absolute inset-0 bg-gradient-to-br transition-all duration-1000 opacity-90 ${ecosystemState.themeClass}`} />
 
           <div className="relative z-10 flex-1 flex flex-col items-center justify-center py-6">
@@ -419,7 +419,7 @@ export default function App() {
         </section>
 
         {/* RIGHT PANEL COMPONENT COLUMN: CONTROLS & MANAGEMENT WAR ROOM */}
-        <section className="lg:col-span-7 flex flex-col space-y-6">
+        <section role="region" aria-label="Contextual Tracker" className="lg:col-span-7 flex flex-col space-y-6">
           {apiError && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2.5 rounded-xl text-xs flex items-center justify-between" role="alert">
               <span>{apiError}</span>
@@ -571,6 +571,25 @@ export default function App() {
                         onChange={(e) => handleModifyTelemetry('flightHours', parseInt(e.target.value), true)}
                         className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-sky-500"
                       />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-900">
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">Aviation Adjust</span>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleModifyTelemetry('flightHours', -1)}
+                        aria-label="Decrease flight count"
+                        className="p-1.5 bg-slate-900 hover:bg-slate-850 text-slate-400 border border-slate-800 rounded-lg"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleModifyTelemetry('flightHours', 1)}
+                        aria-label="Increase flight count"
+                        className="p-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 </div>

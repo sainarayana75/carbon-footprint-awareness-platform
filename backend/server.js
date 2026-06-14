@@ -36,10 +36,25 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps, curl, or server-to-server)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+      
+      let isAllowed = false;
+      try {
+        const originUrl = new URL(origin);
+        if (
+          allowedOrigins.indexOf(origin) !== -1 ||
+          process.env.NODE_ENV !== 'production' ||
+          originUrl.hostname.endsWith('.run.app')
+        ) {
+          isAllowed = true;
+        }
+      } catch (e) {
+        // Fallback if URL parsing fails
+      }
+
+      if (isAllowed) {
         return callback(null, true);
       }
-      return callback(new Error('CORS Policy: Request from this origin is not allowed.'));
+      return callback(null, false);
     },
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],

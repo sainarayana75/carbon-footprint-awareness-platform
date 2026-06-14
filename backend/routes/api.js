@@ -143,7 +143,11 @@ function calculateMetrics(data) {
       electricity: (electricity * FACTORS.electricity) + (lpg * 42.5),
       trees: trees * FACTORS.tree,
       transit: (transit * FACTORS.transit) + (compost * 5.0),
-      vegan: vegan * FACTORS.vegan
+      vegan: vegan * FACTORS.vegan,
+      transport: (flights * FACTORS.flight) + (flightHours * 90) + (carKm * carFactor),
+      utilities: (electricity * FACTORS.electricity) + (lpg * 42.5),
+      dietAndFood: (meat * FACTORS.meat) + (foodWaste * 2.0),
+      offsets: (trees * FACTORS.tree) + (transit * FACTORS.transit) + (compost * 5.0) + (vegan * FACTORS.vegan)
     }
   };
 }
