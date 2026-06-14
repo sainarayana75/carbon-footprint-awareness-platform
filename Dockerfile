@@ -7,8 +7,8 @@ WORKDIR /app/frontend
 # Leverage layer caching by copying package manifests first
 COPY frontend/package*.json ./
 
-# Install development and production dependencies with cache mounts
-RUN --mount=type=cache,target=/root/.npm npm ci
+# Install development and production dependencies
+RUN npm ci
 
 # Copy the rest of the frontend source files and compile
 COPY frontend/ ./
@@ -23,8 +23,8 @@ WORKDIR /app/backend
 # Leverage layer caching by copying package manifests first
 COPY backend/package*.json ./
 
-# Install ONLY production dependencies with cache mounts
-RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
+# Install ONLY production dependencies
+RUN npm ci --omit=dev
 
 # ==========================================
 # STAGE 3: Production Runner Image (Non-Root)
