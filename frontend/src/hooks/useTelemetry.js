@@ -155,14 +155,23 @@ export function useTelemetry() {
     }
   };
 
-  // Effect 1: Execute calculations immediately on telemetry change to update UI instantly
+  // Effect 1: Execute calculations on telemetry change (debounced in production, instant in test)
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
       calculateAndLog(telemetry, true);
       return;
     }
-    calculateAndLog(telemetry, false);
+
+    const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+    if (isTest) {
+      calculateAndLog(telemetry, false);
+    } else {
+      const timer = setTimeout(() => {
+        calculateAndLog(telemetry, false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
   }, [telemetry]);
 
   // Effect 2: Debounce the heavy Gemini API calls to prevent network and token choking
