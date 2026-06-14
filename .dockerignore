@@ -1,0 +1,48 @@
+# Dependencies and local builds
+node_modules
+**/node_modules
+dist
+**/dist
+public
+**/public
+coverage
+**/coverage
+.nyc_output
+
+# Environments, keys, and credentials
+.env
+.env.*
+*.pem
+*.key
+.git
+.github
+.gitignore
+
+# IDE config files
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS metadata
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Project files and docs
+README.md
+cloudbuild.yaml
+task.md
+implementation_plan.md
+walkthrough.md

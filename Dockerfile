@@ -4,9 +4,13 @@
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 
+# Leverage layer caching by copying package manifests first
 COPY frontend/package*.json ./
-RUN npm ci
 
+# Install development and production dependencies with cache mounts
+RUN --mount=type=cache,target=/root/.npm npm ci
+
+# Copy the rest of the frontend source files and compile
 COPY frontend/ ./
 RUN npm run build
 
@@ -16,8 +20,11 @@ RUN npm run build
 FROM node:20-alpine AS backend-builder
 WORKDIR /app/backend
 
+# Leverage layer caching by copying package manifests first
 COPY backend/package*.json ./
-RUN npm ci --omit=dev
+
+# Install ONLY production dependencies with cache mounts
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 
 # ==========================================
 # STAGE 3: Production Runner Image (Non-Root)
@@ -28,18 +35,17 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
 
-# Copy backend files and pre-installed production dependencies
-COPY --from=backend-builder /app/backend/node_modules ./node_modules
-COPY backend/package.json ./package.json
-COPY backend/server.js ./server.js
-COPY backend/routes ./routes
-COPY backend/services ./services
+# Copy pre-installed production backend modules with owner permissions
+COPY --from=backend-builder --chown=node:node /app/backend/node_modules ./node_modules
+COPY --chown=node:node backend/package.json ./package.json
+COPY --chown=node:node backend/server.js ./server.js
+COPY --chown=node:node backend/routes ./routes
+COPY --chown=node:node backend/services ./services
 
 # Copy compiled frontend assets to backend static folder
-COPY --from=frontend-builder /app/frontend/dist ./public
+COPY --from=frontend-builder --chown=node:node /app/frontend/dist ./public
 
-# Secure file permissions and switch to standard non-root 'node' user
-RUN chown -R node:node /app
+# Switch to the standard non-root 'node' user for security compliance
 USER node
 
 EXPOSE 8080
