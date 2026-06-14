@@ -1,4 +1,4 @@
-const { GoogleGenAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // High-fidelity local JSON mock array containing realistic Indian household metrics
 const LOCAL_MOCK_NUDGES = [
@@ -100,9 +100,9 @@ async function generateSmartNudge(telemetry) {
     );
 
     const apiCallPromise = (async () => {
-      // Lazy init GoogleGenAI to ensure no errors on import
-      const { GoogleGenAI } = require('@google/generative-ai');
-      const ai = new GoogleGenAI({ apiKey });
+      // Lazy init GoogleGenerativeAI to ensure no errors on import
+      const { GoogleGenerativeAI } = require('@google/generative-ai');
+      const ai = new GoogleGenerativeAI(apiKey);
       const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
       
       const result = await model.generateContent({

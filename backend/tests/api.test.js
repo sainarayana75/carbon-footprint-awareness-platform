@@ -4,7 +4,7 @@ const app = require('../server');
 // Mock @google/generative-ai SDK to ensure deterministic offline testing
 jest.mock('@google/generative-ai', () => {
   return {
-    GoogleGenAI: jest.fn().mockImplementation(() => {
+    GoogleGenerativeAI: jest.fn().mockImplementation(() => {
       return {
         getGenerativeModel: jest.fn().mockImplementation(() => {
           return {
